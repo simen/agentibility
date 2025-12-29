@@ -21,6 +21,7 @@ import * as queryTool from './tools/query.js';
 import * as sectionTool from './tools/section.js';
 import * as elementsTool from './tools/elements.js';
 import * as actionTool from './tools/action.js';
+import * as screenshotTool from './tools/screenshot.js';
 
 const tools = [
   openSessionTool,
@@ -30,6 +31,7 @@ const tools = [
   sectionTool,
   elementsTool,
   actionTool,
+  screenshotTool,
 ];
 
 export function createServer(options: { headless?: boolean } = {}) {
