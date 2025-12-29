@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Page</title>
+</head>
+<body>
+  <header role="banner">
+    <nav aria-label="Main navigation">
+      <a href="/">Home</a>
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>Search</h1>
+
+    <form id="search-form" action="/search" method="get" aria-label="Site search">
+      <label for="search">Search term</label>
+      <input type="text" id="search" name="q" placeholder="Enter search term...">
+
+      <label for="category">Category</label>
+      <select id="category" name="category">
+        <option value="">All categories</option>
+        <option value="docs">Documentation</option>
+        <option value="blog">Blog posts</option>
+        <option value="api">API Reference</option>
+      </select>
+
+      <button type="submit" id="submit">Search</button>
+    </form>
+
+    <section aria-label="Search results" id="results">
+      <h2>Results</h2>
+      <p>No search performed yet.</p>
+    </section>
+  </main>
+
+  <footer role="contentinfo">
+    <p>&copy; 2024 Test Site</p>
+  </footer>
+
+  <script>
+    // Simple SPA behavior for testing
+    const form = document.getElementById('search-form');
+    const results = document.getElementById('results');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const query = document.getElementById('search').value;
+      const category = document.getElementById('category').value;
+
+      results.innerHTML = `
+        <h2>Results for "${query}"</h2>
+        <ul>
+          <li><a href="/result/1">First result about ${query}</a></li>
+          <li><a href="/result/2">Second result matching ${query}</a></li>
+          <li><a href="/result/3">Third result for ${query}</a></li>
+        </ul>
+        <p>Showing results ${category ? 'in ' + category : 'in all categories'}</p>
+      `;
+    });
+  </script>
+</body>
+</html>

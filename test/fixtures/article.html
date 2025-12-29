@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Understanding Web Accessibility</title>
+</head>
+<body>
+  <header role="banner">
+    <nav aria-label="Main navigation">
+      <a href="/">Home</a>
+      <a href="/articles">Articles</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <article>
+      <h1>Understanding Web Accessibility</h1>
+      <p class="meta">Published on January 15, 2024</p>
+
+      <h2>Introduction</h2>
+      <p>Web accessibility ensures that websites and applications are usable by everyone, including people with disabilities. This article covers the fundamentals of creating accessible web content.</p>
+
+      <h2>Key Principles</h2>
+      <p>The Web Content Accessibility Guidelines (WCAG) define four main principles:</p>
+      <ul>
+        <li><strong>Perceivable</strong> - Information must be presentable in ways users can perceive</li>
+        <li><strong>Operable</strong> - Interface components must be operable by all users</li>
+        <li><strong>Understandable</strong> - Information and operation must be understandable</li>
+        <li><strong>Robust</strong> - Content must be robust enough for various assistive technologies</li>
+      </ul>
+
+      <h2>Semantic HTML</h2>
+      <p>Using semantic HTML elements is crucial for accessibility. Elements like <code>&lt;header&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;main&gt;</code>, and <code>&lt;footer&gt;</code> provide important context for assistive technologies.</p>
+
+      <h3>Landmarks</h3>
+      <p>ARIA landmarks help users navigate the page structure. Common landmarks include banner, navigation, main, and contentinfo.</p>
+
+      <h3>Headings</h3>
+      <p>A proper heading hierarchy (h1-h6) creates a document outline that screen reader users can navigate efficiently.</p>
+
+      <h2>Forms and Inputs</h2>
+      <p>Form accessibility requires proper labeling and error handling:</p>
+
+      <table>
+        <caption>Form Element Best Practices</caption>
+        <thead>
+          <tr>
+            <th>Element</th>
+            <th>Requirement</th>
+            <th>Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Input</td>
+            <td>Associated label</td>
+            <td><code>&lt;label for="email"&gt;</code></td>
+          </tr>
+          <tr>
+            <td>Button</td>
+            <td>Descriptive text</td>
+            <td><code>&lt;button&gt;Submit Form&lt;/button&gt;</code></td>
+          </tr>
+          <tr>
+            <td>Checkbox</td>
+            <td>Clear label</td>
+            <td><code>&lt;input type="checkbox"&gt; Accept terms</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Conclusion</h2>
+      <p>Accessibility benefits everyone. By following these guidelines, you create more inclusive web experiences.</p>
+    </article>
+  </main>
+
+  <aside role="complementary" aria-label="Related articles">
+    <h2>Related Articles</h2>
+    <ul>
+      <li><a href="/articles/aria-guide">ARIA Attributes Guide</a></li>
+      <li><a href="/articles/screen-readers">Testing with Screen Readers</a></li>
+      <li><a href="/articles/keyboard-nav">Keyboard Navigation Best Practices</a></li>
+    </ul>
+  </aside>
+
+  <footer role="contentinfo">
+    <p>&copy; 2024 Accessibility Blog</p>
+  </footer>
+</body>
+</html>
