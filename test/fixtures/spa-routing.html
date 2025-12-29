@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPA Routing Demo</title>
+  <style>
+    .page { display: none; }
+    .page.active { display: block; }
+    nav a { margin-right: 1rem; cursor: pointer; }
+    nav a.active { font-weight: bold; text-decoration: underline; }
+    .loading { color: gray; font-style: italic; }
+  </style>
+</head>
+<body>
+  <header role="banner">
+    <h1>SPA Demo App</h1>
+    <nav aria-label="Main navigation" id="main-nav">
+      <a href="#home" data-route="home" class="active">Home</a>
+      <a href="#products" data-route="products">Products</a>
+      <a href="#about" data-route="about">About</a>
+      <a href="#contact" data-route="contact">Contact</a>
+    </nav>
+  </header>
+
+  <main role="main" id="app-content">
+    <div id="page-home" class="page active">
+      <h2>Welcome Home</h2>
+      <p>This is the home page of our SPA.</p>
+      <button id="featured-btn" aria-label="View featured products">View Featured Products</button>
+    </div>
+
+    <div id="page-products" class="page">
+      <h2>Products</h2>
+      <div id="product-list">
+        <article aria-label="Widget Pro">
+          <h3>Widget Pro</h3>
+          <p>Price: $29.99</p>
+          <button class="add-to-cart" data-product="widget-pro">Add to Cart</button>
+        </article>
+        <article aria-label="Gadget Plus">
+          <h3>Gadget Plus</h3>
+          <p>Price: $49.99</p>
+          <button class="add-to-cart" data-product="gadget-plus">Add to Cart</button>
+        </article>
+        <article aria-label="Super Tool">
+          <h3>Super Tool</h3>
+          <p>Price: $19.99</p>
+          <button class="add-to-cart" data-product="super-tool">Add to Cart</button>
+        </article>
+      </div>
+      <section id="cart-summary" aria-label="Cart summary">
+        <h3>Cart</h3>
+        <p id="cart-count">0 items</p>
+      </section>
+    </div>
+
+    <div id="page-about" class="page">
+      <h2>About Us</h2>
+      <p>We are a demo company showcasing SPA routing patterns.</p>
+      <section aria-label="Team members">
+        <h3>Our Team</h3>
+        <ul>
+          <li>Alice - CEO</li>
+          <li>Bob - CTO</li>
+          <li>Charlie - Designer</li>
+        </ul>
+      </section>
+    </div>
+
+    <div id="page-contact" class="page">
+      <h2>Contact Us</h2>
+      <form id="contact-form" aria-label="Contact form">
+        <div>
+          <label for="contact-name">Name</label>
+          <input type="text" id="contact-name" name="name" required>
+        </div>
+        <div>
+          <label for="contact-email">Email</label>
+          <input type="email" id="contact-email" name="email" required>
+        </div>
+        <div>
+          <label for="contact-message">Message</label>
+          <textarea id="contact-message" name="message" rows="4" required></textarea>
+        </div>
+        <button type="submit">Send Message</button>
+      </form>
+      <div id="contact-result" aria-live="polite"></div>
+    </div>
+
+    <div id="page-loading" class="page">
+      <p class="loading" aria-busy="true">Loading...</p>
+    </div>
+
+    <div id="page-404" class="page">
+      <h2>Page Not Found</h2>
+      <p>The requested page does not exist.</p>
+      <a href="#home">Return to Home</a>
+    </div>
+  </main>
+
+  <footer role="contentinfo">
+    <p>&copy; 2024 SPA Demo</p>
+  </footer>
+
+  <script>
+    // Simple SPA router
+    const routes = ['home', 'products', 'about', 'contact'];
+    let cartItems = [];
+
+    function navigate(route) {
+      // Hide all pages
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+
+      // Show loading briefly for realism
+      const loadingPage = document.getElementById('page-loading');
+      loadingPage.classList.add('active');
+
+      setTimeout(() => {
+        loadingPage.classList.remove('active');
+
+        if (routes.includes(route)) {
+          document.getElementById('page-' + route).classList.add('active');
+          document.querySelector('nav a[data-route="' + route + '"]').classList.add('active');
+          document.title = 'SPA Demo - ' + route.charAt(0).toUpperCase() + route.slice(1);
+        } else {
+          document.getElementById('page-404').classList.add('active');
+          document.title = 'SPA Demo - Not Found';
+        }
+      }, 100);
+    }
+
+    // Handle navigation clicks
+    document.querySelectorAll('nav a').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const route = link.dataset.route;
+        window.location.hash = route;
+        navigate(route);
+      });
+    });
+
+    // Handle hash changes (back/forward)
+    window.addEventListener('hashchange', () => {
+      const route = window.location.hash.slice(1) || 'home';
+      navigate(route);
+    });
+
+    // Featured products button
+    document.getElementById('featured-btn').addEventListener('click', () => {
+      window.location.hash = 'products';
+      navigate('products');
+    });
+
+    // Add to cart functionality
+    document.querySelectorAll('.add-to-cart').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const product = btn.dataset.product;
+        cartItems.push(product);
+        document.getElementById('cart-count').textContent = cartItems.length + ' items';
+        btn.textContent = 'Added!';
+        setTimeout(() => { btn.textContent = 'Add to Cart'; }, 1000);
+      });
+    });
+
+    // Contact form
+    document.getElementById('contact-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('contact-name').value;
+      document.getElementById('contact-result').innerHTML =
+        '<p style="color: green;">Thank you, ' + name + '! Your message has been sent.</p>';
+    });
+
+    // Initial route
+    const initialRoute = window.location.hash.slice(1) || 'home';
+    if (initialRoute !== 'home') {
+      navigate(initialRoute);
+    }
+  </script>
+</body>
+</html>

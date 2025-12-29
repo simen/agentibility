@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complex Tables Demo</title>
+  <style>
+    table { border-collapse: collapse; margin: 1rem 0; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: left; }
+    th { background: #f5f5f5; }
+    .sortable { cursor: pointer; }
+    .sortable:hover { background: #e5e5e5; }
+    .sort-asc::after { content: ' ▲'; }
+    .sort-desc::after { content: ' ▼'; }
+    .numeric { text-align: right; }
+    .expandable-row { cursor: pointer; }
+    .detail-row { display: none; background: #fafafa; }
+    .detail-row.expanded { display: table-row; }
+    .pagination { margin: 1rem 0; }
+    .pagination button { margin-right: 0.5rem; }
+  </style>
+</head>
+<body>
+  <header role="banner">
+    <h1>Data Tables</h1>
+  </header>
+
+  <main role="main">
+    <section aria-label="Simple data table">
+      <h2>Employee Directory</h2>
+      <table id="employee-table" aria-label="Employee directory">
+        <caption>List of company employees with their details</caption>
+        <thead>
+          <tr>
+            <th scope="col" class="sortable" data-sort="name">Name</th>
+            <th scope="col" class="sortable" data-sort="department">Department</th>
+            <th scope="col" class="sortable" data-sort="role">Role</th>
+            <th scope="col" class="sortable numeric" data-sort="salary">Salary</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Alice Johnson</td>
+            <td>Engineering</td>
+            <td>Senior Developer</td>
+            <td class="numeric">$120,000</td>
+            <td><button class="edit-btn" aria-label="Edit Alice Johnson">Edit</button></td>
+          </tr>
+          <tr>
+            <td>Bob Smith</td>
+            <td>Marketing</td>
+            <td>Marketing Manager</td>
+            <td class="numeric">$95,000</td>
+            <td><button class="edit-btn" aria-label="Edit Bob Smith">Edit</button></td>
+          </tr>
+          <tr>
+            <td>Carol Williams</td>
+            <td>Engineering</td>
+            <td>Tech Lead</td>
+            <td class="numeric">$140,000</td>
+            <td><button class="edit-btn" aria-label="Edit Carol Williams">Edit</button></td>
+          </tr>
+          <tr>
+            <td>David Brown</td>
+            <td>Sales</td>
+            <td>Sales Representative</td>
+            <td class="numeric">$75,000</td>
+            <td><button class="edit-btn" aria-label="Edit David Brown">Edit</button></td>
+          </tr>
+          <tr>
+            <td>Eve Davis</td>
+            <td>HR</td>
+            <td>HR Director</td>
+            <td class="numeric">$110,000</td>
+            <td><button class="edit-btn" aria-label="Edit Eve Davis">Edit</button></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3"><strong>Total Employees: 5</strong></td>
+            <td class="numeric"><strong>$540,000</strong></td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
+
+    <section aria-label="Table with row and column headers">
+      <h2>Quarterly Sales Report</h2>
+      <table id="sales-table" aria-label="Quarterly sales by region">
+        <caption>2024 Sales figures by region and quarter (in thousands)</caption>
+        <thead>
+          <tr>
+            <th scope="col">Region</th>
+            <th scope="col">Q1</th>
+            <th scope="col">Q2</th>
+            <th scope="col">Q3</th>
+            <th scope="col">Q4</th>
+            <th scope="col">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">North America</th>
+            <td class="numeric">$450</td>
+            <td class="numeric">$520</td>
+            <td class="numeric">$480</td>
+            <td class="numeric">$610</td>
+            <td class="numeric"><strong>$2,060</strong></td>
+          </tr>
+          <tr>
+            <th scope="row">Europe</th>
+            <td class="numeric">$320</td>
+            <td class="numeric">$380</td>
+            <td class="numeric">$350</td>
+            <td class="numeric">$420</td>
+            <td class="numeric"><strong>$1,470</strong></td>
+          </tr>
+          <tr>
+            <th scope="row">Asia Pacific</th>
+            <td class="numeric">$280</td>
+            <td class="numeric">$310</td>
+            <td class="numeric">$340</td>
+            <td class="numeric">$390</td>
+            <td class="numeric"><strong>$1,320</strong></td>
+          </tr>
+          <tr>
+            <th scope="row">Latin America</th>
+            <td class="numeric">$150</td>
+            <td class="numeric">$180</td>
+            <td class="numeric">$165</td>
+            <td class="numeric">$210</td>
+            <td class="numeric"><strong>$705</strong></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th scope="row">Grand Total</th>
+            <td class="numeric"><strong>$1,200</strong></td>
+            <td class="numeric"><strong>$1,390</strong></td>
+            <td class="numeric"><strong>$1,335</strong></td>
+            <td class="numeric"><strong>$1,630</strong></td>
+            <td class="numeric"><strong>$5,555</strong></td>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
+
+    <section aria-label="Expandable details table">
+      <h2>Product Inventory</h2>
+      <table id="inventory-table" aria-label="Product inventory with expandable details">
+        <caption>Click a row to see product details</caption>
+        <thead>
+          <tr>
+            <th scope="col">SKU</th>
+            <th scope="col">Product Name</th>
+            <th scope="col">Category</th>
+            <th scope="col" class="numeric">Stock</th>
+            <th scope="col" class="numeric">Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="expandable-row" aria-expanded="false" data-sku="WDG-001">
+            <td>WDG-001</td>
+            <td>Widget Pro</td>
+            <td>Electronics</td>
+            <td class="numeric">150</td>
+            <td class="numeric">$29.99</td>
+          </tr>
+          <tr class="detail-row" id="detail-WDG-001">
+            <td colspan="5">
+              <strong>Description:</strong> Professional-grade widget with advanced features.<br>
+              <strong>Supplier:</strong> WidgetCorp<br>
+              <strong>Last Restocked:</strong> 2024-01-15
+            </td>
+          </tr>
+          <tr class="expandable-row" aria-expanded="false" data-sku="GDG-002">
+            <td>GDG-002</td>
+            <td>Gadget Plus</td>
+            <td>Electronics</td>
+            <td class="numeric">75</td>
+            <td class="numeric">$49.99</td>
+          </tr>
+          <tr class="detail-row" id="detail-GDG-002">
+            <td colspan="5">
+              <strong>Description:</strong> Enhanced gadget with premium build quality.<br>
+              <strong>Supplier:</strong> GadgetWorks<br>
+              <strong>Last Restocked:</strong> 2024-01-10
+            </td>
+          </tr>
+          <tr class="expandable-row" aria-expanded="false" data-sku="TLS-003">
+            <td>TLS-003</td>
+            <td>Super Tool</td>
+            <td>Hardware</td>
+            <td class="numeric">200</td>
+            <td class="numeric">$19.99</td>
+          </tr>
+          <tr class="detail-row" id="detail-TLS-003">
+            <td colspan="5">
+              <strong>Description:</strong> Multi-purpose tool for everyday use.<br>
+              <strong>Supplier:</strong> ToolMasters<br>
+              <strong>Last Restocked:</strong> 2024-01-20
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-label="Paginated table">
+      <h2>Transaction Log</h2>
+      <table id="transaction-table" aria-label="Transaction history">
+        <caption>Recent transactions (showing page <span id="current-page">1</span> of <span id="total-pages">3</span>)</caption>
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Date</th>
+            <th scope="col">Customer</th>
+            <th scope="col">Type</th>
+            <th scope="col" class="numeric">Amount</th>
+          </tr>
+        </thead>
+        <tbody id="transaction-body">
+          <!-- Populated by JavaScript -->
+        </tbody>
+      </table>
+      <nav class="pagination" aria-label="Table pagination">
+        <button id="prev-page" disabled aria-label="Previous page">Previous</button>
+        <button id="next-page" aria-label="Next page">Next</button>
+        <span aria-live="polite" id="pagination-status"></span>
+      </nav>
+    </section>
+
+    <section aria-label="Nested headers table">
+      <h2>Weather Forecast</h2>
+      <table id="weather-table" aria-label="Weekly weather forecast">
+        <caption>7-day weather forecast with temperature and conditions</caption>
+        <thead>
+          <tr>
+            <th scope="col" rowspan="2">Day</th>
+            <th scope="colgroup" colspan="2">Temperature</th>
+            <th scope="col" rowspan="2">Conditions</th>
+            <th scope="col" rowspan="2">Precipitation</th>
+          </tr>
+          <tr>
+            <th scope="col">High</th>
+            <th scope="col">Low</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Monday</th>
+            <td class="numeric">72°F</td>
+            <td class="numeric">55°F</td>
+            <td>Sunny</td>
+            <td class="numeric">0%</td>
+          </tr>
+          <tr>
+            <th scope="row">Tuesday</th>
+            <td class="numeric">68°F</td>
+            <td class="numeric">52°F</td>
+            <td>Partly Cloudy</td>
+            <td class="numeric">10%</td>
+          </tr>
+          <tr>
+            <th scope="row">Wednesday</th>
+            <td class="numeric">65°F</td>
+            <td class="numeric">50°F</td>
+            <td>Cloudy</td>
+            <td class="numeric">40%</td>
+          </tr>
+          <tr>
+            <th scope="row">Thursday</th>
+            <td class="numeric">62°F</td>
+            <td class="numeric">48°F</td>
+            <td>Rain</td>
+            <td class="numeric">80%</td>
+          </tr>
+          <tr>
+            <th scope="row">Friday</th>
+            <td class="numeric">70°F</td>
+            <td class="numeric">53°F</td>
+            <td>Sunny</td>
+            <td class="numeric">5%</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer role="contentinfo">
+    <p>&copy; 2024 Tables Demo</p>
+  </footer>
+
+  <script>
+    // Sortable table functionality
+    document.querySelectorAll('#employee-table .sortable').forEach(header => {
+      header.addEventListener('click', () => {
+        const table = document.getElementById('employee-table');
+        const tbody = table.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        const column = header.dataset.sort;
+        const colIndex = Array.from(header.parentElement.children).indexOf(header);
+
+        // Toggle sort direction
+        const isAsc = header.classList.contains('sort-asc');
+        document.querySelectorAll('.sortable').forEach(h => {
+          h.classList.remove('sort-asc', 'sort-desc');
+        });
+        header.classList.add(isAsc ? 'sort-desc' : 'sort-asc');
+
+        rows.sort((a, b) => {
+          let aVal = a.children[colIndex].textContent.trim();
+          let bVal = b.children[colIndex].textContent.trim();
+
+          // Handle numeric values
+          if (column === 'salary') {
+            aVal = parseInt(aVal.replace(/[$,]/g, ''), 10);
+            bVal = parseInt(bVal.replace(/[$,]/g, ''), 10);
+          }
+
+          if (typeof aVal === 'number') {
+            return isAsc ? bVal - aVal : aVal - bVal;
+          }
+          return isAsc ? bVal.localeCompare(aVal) : aVal.localeCompare(bVal);
+        });
+
+        rows.forEach(row => tbody.appendChild(row));
+      });
+    });
+
+    // Expandable rows
+    document.querySelectorAll('.expandable-row').forEach(row => {
+      row.addEventListener('click', () => {
+        const sku = row.dataset.sku;
+        const detailRow = document.getElementById('detail-' + sku);
+        const isExpanded = row.getAttribute('aria-expanded') === 'true';
+
+        row.setAttribute('aria-expanded', !isExpanded);
+        detailRow.classList.toggle('expanded');
+      });
+    });
+
+    // Pagination
+    const transactions = [
+      { id: 'TXN-001', date: '2024-01-20', customer: 'John Doe', type: 'Purchase', amount: '$150.00' },
+      { id: 'TXN-002', date: '2024-01-20', customer: 'Jane Smith', type: 'Refund', amount: '-$45.00' },
+      { id: 'TXN-003', date: '2024-01-19', customer: 'Bob Wilson', type: 'Purchase', amount: '$89.99' },
+      { id: 'TXN-004', date: '2024-01-19', customer: 'Alice Brown', type: 'Purchase', amount: '$220.00' },
+      { id: 'TXN-005', date: '2024-01-18', customer: 'Charlie Davis', type: 'Purchase', amount: '$35.50' },
+      { id: 'TXN-006', date: '2024-01-18', customer: 'Diana Lee', type: 'Refund', amount: '-$25.00' },
+      { id: 'TXN-007', date: '2024-01-17', customer: 'Edward Kim', type: 'Purchase', amount: '$175.00' },
+      { id: 'TXN-008', date: '2024-01-17', customer: 'Fiona Chen', type: 'Purchase', amount: '$95.00' },
+      { id: 'TXN-009', date: '2024-01-16', customer: 'George Park', type: 'Purchase', amount: '$310.00' },
+    ];
+
+    const itemsPerPage = 3;
+    let currentPage = 1;
+    const totalPages = Math.ceil(transactions.length / itemsPerPage);
+
+    function renderTransactions() {
+      const start = (currentPage - 1) * itemsPerPage;
+      const pageItems = transactions.slice(start, start + itemsPerPage);
+      const tbody = document.getElementById('transaction-body');
+
+      tbody.innerHTML = pageItems.map(t => `
+        <tr>
+          <td>${t.id}</td>
+          <td>${t.date}</td>
+          <td>${t.customer}</td>
+          <td>${t.type}</td>
+          <td class="numeric">${t.amount}</td>
+        </tr>
+      `).join('');
+
+      document.getElementById('current-page').textContent = currentPage;
+      document.getElementById('prev-page').disabled = currentPage === 1;
+      document.getElementById('next-page').disabled = currentPage === totalPages;
+      document.getElementById('pagination-status').textContent =
+        `Showing ${start + 1}-${Math.min(start + itemsPerPage, transactions.length)} of ${transactions.length}`;
+    }
+
+    document.getElementById('prev-page').addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderTransactions();
+      }
+    });
+
+    document.getElementById('next-page').addEventListener('click', () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderTransactions();
+      }
+    });
+
+    renderTransactions();
+  </script>
+</body>
+</html>

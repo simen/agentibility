@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edge Cases Demo</title>
+  <style>
+    .hidden { display: none; }
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+    .tooltip { position: relative; display: inline-block; }
+    .tooltip .tooltip-text {
+      visibility: hidden;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      padding: 5px;
+      border-radius: 3px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .tooltip:hover .tooltip-text { visibility: visible; }
+    [aria-hidden="true"] { display: none; }
+    .modal-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; }
+    .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; display: none; z-index: 1000; }
+    .modal.open, .modal-backdrop.open { display: block; }
+    .lazy-content { min-height: 200px; background: #f0f0f0; margin: 1rem 0; }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="visually-hidden">Skip to main content</a>
+
+  <header role="banner">
+    <h1>Accessibility Edge Cases</h1>
+    <nav aria-label="Main navigation">
+      <ul>
+        <li><a href="#section-dynamic">Dynamic Content</a></li>
+        <li><a href="#section-aria">ARIA Patterns</a></li>
+        <li><a href="#section-labels">Label Edge Cases</a></li>
+        <li><a href="#section-images">Image Handling</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main-content" role="main">
+
+    <section id="section-dynamic" aria-label="Dynamic content examples">
+      <h2>Dynamic Content</h2>
+
+      <div aria-live="polite" aria-atomic="true" id="live-region">
+        <p>Live region content will appear here.</p>
+      </div>
+
+      <button id="update-live" aria-label="Update live region">Update Live Region</button>
+
+      <div id="lazy-container" class="lazy-content">
+        <p>Lazy loaded content area</p>
+        <button id="load-content">Load More Content</button>
+      </div>
+
+      <div id="countdown" aria-live="assertive" aria-atomic="true">
+        Timer: <span id="timer-value">10</span> seconds
+      </div>
+      <button id="start-timer">Start Countdown</button>
+    </section>
+
+    <section id="section-aria" aria-label="ARIA pattern examples">
+      <h2>ARIA Patterns</h2>
+
+      <h3>Tabs</h3>
+      <div role="tablist" aria-label="Sample tabs">
+        <button role="tab" aria-selected="true" aria-controls="panel-1" id="tab-1">Tab 1</button>
+        <button role="tab" aria-selected="false" aria-controls="panel-2" id="tab-2" tabindex="-1">Tab 2</button>
+        <button role="tab" aria-selected="false" aria-controls="panel-3" id="tab-3" tabindex="-1">Tab 3</button>
+      </div>
+      <div role="tabpanel" id="panel-1" aria-labelledby="tab-1">
+        <p>Content for Tab 1. This panel is currently visible.</p>
+      </div>
+      <div role="tabpanel" id="panel-2" aria-labelledby="tab-2" hidden>
+        <p>Content for Tab 2. This is hidden until Tab 2 is selected.</p>
+      </div>
+      <div role="tabpanel" id="panel-3" aria-labelledby="tab-3" hidden>
+        <p>Content for Tab 3. This is hidden until Tab 3 is selected.</p>
+      </div>
+
+      <h3>Accordion</h3>
+      <div class="accordion">
+        <h4>
+          <button aria-expanded="false" aria-controls="accordion-1" id="accordion-btn-1">
+            Section 1: Getting Started
+          </button>
+        </h4>
+        <div id="accordion-1" role="region" aria-labelledby="accordion-btn-1" hidden>
+          <p>This is the content for section 1. It covers getting started.</p>
+        </div>
+
+        <h4>
+          <button aria-expanded="false" aria-controls="accordion-2" id="accordion-btn-2">
+            Section 2: Advanced Topics
+          </button>
+        </h4>
+        <div id="accordion-2" role="region" aria-labelledby="accordion-btn-2" hidden>
+          <p>This is the content for section 2. It covers advanced topics.</p>
+        </div>
+      </div>
+
+      <h3>Modal Dialog</h3>
+      <button id="open-modal" aria-haspopup="dialog">Open Modal</button>
+      <div class="modal-backdrop" id="modal-backdrop"></div>
+      <div class="modal" id="demo-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-desc">
+        <h4 id="modal-title">Confirmation</h4>
+        <p id="modal-desc">Are you sure you want to proceed with this action?</p>
+        <button id="modal-confirm">Confirm</button>
+        <button id="modal-cancel">Cancel</button>
+      </div>
+
+      <h3>Progress Indicators</h3>
+      <div role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" aria-label="Upload progress" style="width: 200px; height: 20px; background: #eee;">
+        <div style="width: 75%; height: 100%; background: #4caf50;"></div>
+      </div>
+      <p>Upload: 75% complete</p>
+
+      <div role="status" aria-live="polite" id="loading-status">
+        <span class="visually-hidden">Loading complete</span>
+      </div>
+    </section>
+
+    <section id="section-labels" aria-label="Label edge cases">
+      <h2>Label Edge Cases</h2>
+
+      <h3>Multiple Label Sources</h3>
+      <form aria-label="Label testing form">
+        <div>
+          <span id="field1-label">First name</span>
+          <span id="field1-required">(required)</span>
+          <input type="text" aria-labelledby="field1-label field1-required" aria-describedby="field1-hint" required>
+          <small id="field1-hint">Enter your legal first name</small>
+        </div>
+
+        <div>
+          <label for="field2">
+            Email address
+            <input type="email" id="field2" placeholder="you@example.com">
+          </label>
+        </div>
+
+        <div>
+          <input type="text" aria-label="Search products" placeholder="Search...">
+        </div>
+
+        <div>
+          <input type="text" title="Zip code" placeholder="Zip">
+        </div>
+
+        <div>
+          <button type="button">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Crect fill='%23666' width='16' height='16'/%3E%3C/svg%3E" alt="">
+            <span class="visually-hidden">Submit form</span>
+          </button>
+        </div>
+      </form>
+
+      <h3>Nested Interactive Elements</h3>
+      <div role="button" tabindex="0" aria-label="Card action">
+        <h4>Clickable Card</h4>
+        <p>This entire card is clickable</p>
+        <a href="#more">Learn more</a>
+      </div>
+
+      <h3>Empty and Missing Labels</h3>
+      <form aria-label="Unlabeled form elements">
+        <input type="text" placeholder="No label provided">
+        <button type="button"></button>
+        <a href="#nowhere"></a>
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50'%3E%3Crect fill='%23ccc' width='50' height='50'/%3E%3C/svg%3E">
+      </form>
+    </section>
+
+    <section id="section-images" aria-label="Image handling examples">
+      <h2>Image Handling</h2>
+
+      <h3>Decorative Images</h3>
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='50'%3E%3Crect fill='%23e0e0e0' width='100' height='50'/%3E%3C/svg%3E" alt="" role="presentation">
+      <span>Decorative divider (should be ignored by screen readers)</span>
+
+      <h3>Informative Images</h3>
+      <figure>
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='150'%3E%3Crect fill='%234caf50' width='200' height='150'/%3E%3Ctext x='50%25' y='50%25' fill='white' text-anchor='middle' dy='.3em'%3EChart%3C/text%3E%3C/svg%3E" alt="Bar chart showing Q4 sales increased 25% compared to Q3">
+        <figcaption>Figure 1: Quarterly sales comparison</figcaption>
+      </figure>
+
+      <h3>Image Links</h3>
+      <a href="#home">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Crect fill='%232196f3' width='32' height='32'/%3E%3C/svg%3E" alt="Home">
+      </a>
+      <a href="#settings">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Crect fill='%239c27b0' width='32' height='32'/%3E%3C/svg%3E" alt="">
+        <span class="visually-hidden">Settings</span>
+      </a>
+
+      <h3>SVG Icons</h3>
+      <button aria-label="Delete item">
+        <svg width="16" height="16" aria-hidden="true" focusable="false">
+          <rect fill="red" width="16" height="16"/>
+        </svg>
+      </button>
+      <button>
+        <svg width="16" height="16" role="img" aria-label="Edit">
+          <rect fill="blue" width="16" height="16"/>
+        </svg>
+      </button>
+    </section>
+
+    <section id="section-complex" aria-label="Complex widgets">
+      <h2>Complex Widgets</h2>
+
+      <h3>Combobox with Autocomplete</h3>
+      <label for="country-input">Country</label>
+      <div role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-owns="country-listbox">
+        <input type="text" id="country-input" aria-autocomplete="list" aria-controls="country-listbox">
+      </div>
+      <ul id="country-listbox" role="listbox" hidden>
+        <li role="option" id="opt-us">United States</li>
+        <li role="option" id="opt-uk">United Kingdom</li>
+        <li role="option" id="opt-ca">Canada</li>
+      </ul>
+
+      <h3>Tree View</h3>
+      <ul role="tree" aria-label="File browser">
+        <li role="treeitem" aria-expanded="true">
+          Documents
+          <ul role="group">
+            <li role="treeitem">Resume.pdf</li>
+            <li role="treeitem">Cover Letter.docx</li>
+          </ul>
+        </li>
+        <li role="treeitem" aria-expanded="false">
+          Images
+          <ul role="group">
+            <li role="treeitem">photo1.jpg</li>
+            <li role="treeitem">photo2.png</li>
+          </ul>
+        </li>
+      </ul>
+
+      <h3>Data Grid</h3>
+      <table role="grid" aria-label="Editable spreadsheet">
+        <thead>
+          <tr>
+            <th scope="col" role="columnheader">Name</th>
+            <th scope="col" role="columnheader">Value</th>
+            <th scope="col" role="columnheader">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td role="gridcell" tabindex="0">Item 1</td>
+            <td role="gridcell" tabindex="-1">100</td>
+            <td role="gridcell" tabindex="-1"><button tabindex="-1">Edit</button></td>
+          </tr>
+          <tr>
+            <td role="gridcell" tabindex="-1">Item 2</td>
+            <td role="gridcell" tabindex="-1">200</td>
+            <td role="gridcell" tabindex="-1"><button tabindex="-1">Edit</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <footer role="contentinfo">
+    <p>&copy; 2024 Edge Cases Demo</p>
+  </footer>
+
+  <script>
+    // Live region updates
+    let updateCount = 0;
+    document.getElementById('update-live').addEventListener('click', () => {
+      updateCount++;
+      document.getElementById('live-region').innerHTML =
+        '<p>Update #' + updateCount + ': Content changed at ' + new Date().toLocaleTimeString() + '</p>';
+    });
+
+    // Lazy load content
+    document.getElementById('load-content').addEventListener('click', function() {
+      const container = document.getElementById('lazy-container');
+      this.disabled = true;
+      this.textContent = 'Loading...';
+
+      setTimeout(() => {
+        container.innerHTML = `
+          <h3>Loaded Content</h3>
+          <p>This content was loaded dynamically after user interaction.</p>
+          <ul>
+            <li>Dynamic item 1</li>
+            <li>Dynamic item 2</li>
+            <li>Dynamic item 3</li>
+          </ul>
+          <button id="load-more">Load Even More</button>
+        `;
+      }, 500);
+    });
+
+    // Countdown timer
+    let timerInterval;
+    document.getElementById('start-timer').addEventListener('click', function() {
+      let seconds = 10;
+      this.disabled = true;
+      clearInterval(timerInterval);
+
+      timerInterval = setInterval(() => {
+        seconds--;
+        document.getElementById('timer-value').textContent = seconds;
+        if (seconds <= 0) {
+          clearInterval(timerInterval);
+          document.getElementById('countdown').innerHTML = '<strong>Time\'s up!</strong>';
+          document.getElementById('start-timer').disabled = false;
+        }
+      }, 1000);
+    });
+
+    // Tab functionality
+    const tabs = document.querySelectorAll('[role="tab"]');
+    const panels = document.querySelectorAll('[role="tabpanel"]');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => {
+          t.setAttribute('aria-selected', 'false');
+          t.setAttribute('tabindex', '-1');
+        });
+        panels.forEach(p => p.hidden = true);
+
+        tab.setAttribute('aria-selected', 'true');
+        tab.setAttribute('tabindex', '0');
+        document.getElementById(tab.getAttribute('aria-controls')).hidden = false;
+      });
+    });
+
+    // Accordion
+    document.querySelectorAll('.accordion button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const expanded = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', !expanded);
+        document.getElementById(btn.getAttribute('aria-controls')).hidden = expanded;
+      });
+    });
+
+    // Modal
+    const modal = document.getElementById('demo-modal');
+    const backdrop = document.getElementById('modal-backdrop');
+
+    document.getElementById('open-modal').addEventListener('click', () => {
+      modal.classList.add('open');
+      backdrop.classList.add('open');
+      document.getElementById('modal-confirm').focus();
+    });
+
+    function closeModal() {
+      modal.classList.remove('open');
+      backdrop.classList.remove('open');
+      document.getElementById('open-modal').focus();
+    }
+
+    document.getElementById('modal-confirm').addEventListener('click', closeModal);
+    document.getElementById('modal-cancel').addEventListener('click', closeModal);
+    backdrop.addEventListener('click', closeModal);
+  </script>
+</body>
+</html>
