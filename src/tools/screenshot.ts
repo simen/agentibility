@@ -59,12 +59,11 @@ export async function handler(params: ScreenshotParams) {
       });
     }
 
+    // Return special format for MCP image content block
     return {
-      success: true,
-      image: buffer.toString('base64'),
-      encoding: 'base64',
+      _type: 'image',
+      data: buffer.toString('base64'),
       mimeType: 'image/png',
-      selector: selector || null,
     };
   } catch (error) {
     return {

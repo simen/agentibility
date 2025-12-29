@@ -77,7 +77,21 @@ export function createServer(options: { headless?: boolean } = {}) {
     }
 
     try {
-      const result = await tool.handler(args as any);
+      const result = await tool.handler(args as any) as any;
+
+      // Check if result is an image (from screenshot tool)
+      if (result && result._type === 'image') {
+        return {
+          content: [
+            {
+              type: 'image',
+              data: result.data,
+              mimeType: result.mimeType,
+            },
+          ],
+        };
+      }
+
       return {
         content: [
           {
