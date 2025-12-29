@@ -1,13 +1,25 @@
 /**
  * screenshot tool - Capture page screenshot
+ *
+ * Always saves to disk to avoid context window bloat from base64 data.
  */
 
-import { writeFileSync } from 'fs';
+import { writeFileSync, mkdirSync } from 'fs';
+import { tmpdir } from 'os';
+import { join } from 'path';
 import { getSession, listSessions } from '../session.js';
+
+// Ensure screenshots directory exists
+const screenshotsDir = join(tmpdir(), 'agentibility-screenshots');
+try {
+  mkdirSync(screenshotsDir, { recursive: true });
+} catch {
+  // Directory may already exist
+}
 
 export const schema = {
   name: 'screenshot',
-  description: 'Captures a screenshot of the current page or a specific element. Returns base64-encoded PNG image data.',
+  description: 'Captures a screenshot of the current page or a specific element. Saves to disk and returns the file path.',
   inputSchema: {
     type: 'object',
     properties: {
@@ -25,7 +37,7 @@ export const schema = {
       },
       savePath: {
         type: 'string',
-        description: 'If provided, saves the PNG to this file path and returns the path instead of base64 data.',
+        description: 'Custom file path to save the PNG. If omitted, saves to a temp directory.',
       },
     },
     required: ['session'],
@@ -65,21 +77,14 @@ export async function handler(params: ScreenshotParams) {
       });
     }
 
-    // If savePath provided, write to disk and return path
-    if (savePath) {
-      writeFileSync(savePath, buffer);
-      return {
-        success: true,
-        savedTo: savePath,
-        size: buffer.length,
-      };
-    }
+    // Determine save path - use provided path or generate temp path
+    const filename = savePath || join(screenshotsDir, `screenshot-${Date.now()}.png`);
+    writeFileSync(filename, buffer);
 
-    // Return special format for MCP image content block
     return {
-      _type: 'image',
-      data: buffer.toString('base64'),
-      mimeType: 'image/png',
+      success: true,
+      path: filename,
+      size: buffer.length,
     };
   } catch (error) {
     return {
