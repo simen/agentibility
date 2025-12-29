@@ -42,7 +42,9 @@ await mcp.call('close_session', { session: 'main' });
 | `query` | Query elements by CSS selector, extract structure or text |
 | `section` | Extract content under a heading |
 | `elements` | List elements by type (headings, links, buttons, forms, tables, images) |
-| `action` | Interact: navigate, click, fill, select, check, press, scroll, back, forward |
+| `action` | Interact: navigate, click, fill, select, check, press, scroll, back, forward, highlight |
+| `screenshot` | Capture page or element screenshots (saves to disk) |
+| `diagnostics` | Get console logs and network requests for debugging |
 
 ## Example Workflow
 
@@ -64,6 +66,60 @@ const forms = await mcp.call('elements', { session: 's1', type: 'forms' });
 // 3. Fill and submit
 await mcp.call('action', { session: 's1', type: 'fill', selector: '[name="q"]', value: 'accessibility' });
 await mcp.call('action', { session: 's1', type: 'press', selector: '[name="q"]', value: 'Enter' });
+```
+
+## Screenshot Tool
+
+Capture full page, viewport, or specific element screenshots. Screenshots save to disk and return the file path (no base64 in context window).
+
+```javascript
+// Full viewport
+await mcp.call('screenshot', { session: 'main' });
+// → { success: true, path: '/tmp/agentibility-screenshots/screenshot-123.png', size: 150000 }
+
+// Full scrollable page
+await mcp.call('screenshot', { session: 'main', fullPage: true });
+
+// Specific element only
+await mcp.call('screenshot', { session: 'main', selector: '[data-testid="tweet"]' });
+
+// Custom save path
+await mcp.call('screenshot', { session: 'main', savePath: '/tmp/my-screenshot.png' });
+```
+
+## Diagnostics Tool
+
+Access browser console logs and network requests for debugging.
+
+```javascript
+// Get console logs
+await mcp.call('diagnostics', { session: 'main', type: 'console' });
+// → { console: [{ level: 'error', text: '...', url: '...', timestamp: '...' }] }
+
+// Get network requests
+await mcp.call('diagnostics', { session: 'main', type: 'network' });
+// → { network: [{ url: '...', method: 'GET', status: 200, timing: 150 }] }
+
+// Get both
+await mcp.call('diagnostics', { session: 'main', type: 'all' });
+
+// Filter by level, limit results, clear buffer
+await mcp.call('diagnostics', {
+  session: 'main',
+  type: 'console',
+  level: 'error',
+  limit: 10,
+  clear: true
+});
+```
+
+## Highlight Action
+
+Scroll to an element and flash it with a colored border—useful for showing users what you're looking at.
+
+```javascript
+// Highlight an element (scrolls into view + flashes orange border 3x)
+await mcp.call('action', { session: 'main', type: 'highlight', selector: '.article-title' });
 ```
 
 ## CLI Options
@@ -101,11 +157,20 @@ npm run dev
 src/
 ├── index.ts              # MCP server entry point
 ├── cli.ts                # CLI
-├── session.ts            # Playwright session management
+├── session.ts            # Playwright session management + diagnostics buffers
 ├── browser/
 │   ├── accessibility.ts  # DOM queries, element extraction
-│   └── actions.ts        # Browser actions
-└── tools/                # MCP tool definitions
+│   └── actions.ts        # Browser actions (including highlight)
+└── tools/
+    ├── open-session.ts   # open_session tool
+    ├── close-session.ts  # close_session tool
+    ├── overview.ts       # overview tool
+    ├── query.ts          # query tool
+    ├── section.ts        # section tool
+    ├── elements.ts       # elements tool
+    ├── action.ts         # action tool
+    ├── screenshot.ts     # screenshot tool
+    └── diagnostics.ts    # diagnostics tool
 
 test/
 ├── fixtures/             # Test HTML pages
