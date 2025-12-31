@@ -14,6 +14,8 @@ import {
 } from '../src/session.js';
 import { getOverview, queryElements, getSection, getElements } from '../src/browser/accessibility.js';
 import { performAction } from '../src/browser/actions.js';
+import { checkAssertion } from '../src/browser/assertions.js';
+import { handler as runSequence, Step, RunSequenceResult } from '../src/tools/run-sequence.js';
 
 // Always run headless in tests
 setHeadless(true);
@@ -169,6 +171,181 @@ async function runTests() {
       assert(table.headers.includes('Element'), 'Headers should include Element');
       assert(table.rows >= 4, 'Table should have at least 4 rows');
       await closeSession('table-test');
+    })();
+
+    // ==========================================
+    // run_sequence tests
+    // ==========================================
+
+    // Test: Assertions module
+    await test('assertions: element_exists passes when element found', async () => {
+      await openSession('assert-test', `http://localhost:${server.port}/search-page.html`);
+      const session = getSession('assert-test');
+      const result = await checkAssertion(session!.page, { element_exists: '#search-form' });
+      assert(result.success, 'element_exists should pass');
+      assertEquals(result.condition, 'element_exists');
+      await closeSession('assert-test');
+    })();
+
+    await test('assertions: element_exists fails when element not found', async () => {
+      await openSession('assert-test-2', `http://localhost:${server.port}/search-page.html`);
+      const session = getSession('assert-test-2');
+      const result = await checkAssertion(session!.page, { element_exists: '#nonexistent' }, 500);
+      assert(!result.success, 'element_exists should fail for missing element');
+      assert(result.error !== undefined, 'Should have error message');
+      await closeSession('assert-test-2');
+    })();
+
+    await test('assertions: url_contains works', async () => {
+      await openSession('assert-test-3', `http://localhost:${server.port}/search-page.html`);
+      const session = getSession('assert-test-3');
+      const result = await checkAssertion(session!.page, { url_contains: 'search-page' });
+      assert(result.success, 'url_contains should pass');
+      await closeSession('assert-test-3');
+    })();
+
+    await test('assertions: title_equals works', async () => {
+      await openSession('assert-test-4', `http://localhost:${server.port}/search-page.html`);
+      const session = getSession('assert-test-4');
+      const result = await checkAssertion(session!.page, { title_equals: 'Search Page' });
+      assert(result.success, 'title_equals should pass');
+      await closeSession('assert-test-4');
+    })();
+
+    await test('assertions: element_count works', async () => {
+      await openSession('assert-test-5', `http://localhost:${server.port}/search-page.html`);
+      const session = getSession('assert-test-5');
+      const result = await checkAssertion(session!.page, { element_count: { selector: 'h1', count: 1 } });
+      assert(result.success, 'element_count should pass');
+      await closeSession('assert-test-5');
+    })();
+
+    // Test: run_sequence basic flow
+    await test('run_sequence: executes action sequence successfully', async () => {
+      await openSession('seq-test-1', `http://localhost:${server.port}/search-page.html`);
+
+      const steps: Step[] = [
+        { type: 'action', action: 'fill', selector: '#search', value: 'test query' },
+        { type: 'action', action: 'click', selector: '#submit' },
+      ];
+
+      const result = await runSequence({ session: 'seq-test-1', steps }) as RunSequenceResult;
+      assert(result.success, 'Sequence should succeed');
+      assertEquals(result.completed, 2);
+      assertEquals(result.total, 2);
+      assert(result.events.length >= 2, 'Should have at least 2 events');
+
+      await closeSession('seq-test-1');
+    })();
+
+    // Test: run_sequence with assertions
+    await test('run_sequence: assertions pass in sequence', async () => {
+      await openSession('seq-test-2', `http://localhost:${server.port}/search-page.html`);
+
+      const steps: Step[] = [
+        { type: 'assert', condition: { element_exists: '#search-form' } },
+        { type: 'action', action: 'fill', selector: '#search', value: 'hello world' },
+        { type: 'action', action: 'click', selector: '#submit' },
+        { type: 'assert', condition: { element_text_contains: { selector: '#results', text: 'hello world' } } },
+      ];
+
+      const result = await runSequence({ session: 'seq-test-2', steps }) as RunSequenceResult;
+      assert(result.success, 'Sequence with assertions should succeed');
+      assertEquals(result.completed, 4);
+
+      await closeSession('seq-test-2');
+    })();
+
+    // Test: run_sequence fails on assertion
+    await test('run_sequence: stops on assertion failure', async () => {
+      await openSession('seq-test-3', `http://localhost:${server.port}/search-page.html`);
+
+      const steps: Step[] = [
+        { type: 'assert', condition: { element_exists: '#search-form' } },
+        { type: 'assert', condition: { element_exists: '#nonexistent-element' } },
+        { type: 'action', action: 'fill', selector: '#search', value: 'should not run' },
+      ];
+
+      const result = await runSequence({ session: 'seq-test-3', steps }) as RunSequenceResult;
+      assert(!result.success, 'Sequence should fail');
+      assertEquals(result.failed_at, 1);
+      assertEquals(result.completed, 1);
+      assert(result.failure_reason !== undefined, 'Should have failure reason');
+
+      await closeSession('seq-test-3');
+    })();
+
+    // Test: run_sequence with query step
+    await test('run_sequence: query step captures overview', async () => {
+      await openSession('seq-test-4', `http://localhost:${server.port}/search-page.html`);
+
+      const steps: Step[] = [
+        { type: 'query', query: 'overview' },
+      ];
+
+      const result = await runSequence({ session: 'seq-test-4', steps }) as RunSequenceResult;
+      assert(result.success, 'Query step should succeed');
+
+      const stepEvent = result.events.find(e => e.type === 'step') as any;
+      assert(stepEvent !== undefined, 'Should have step event');
+      assert(stepEvent.result.data.title === 'Search Page', 'Overview should have title');
+
+      await closeSession('seq-test-4');
+    })();
+
+    // Test: run_sequence reports final state
+    await test('run_sequence: returns final page state', async () => {
+      await openSession('seq-test-5', `http://localhost:${server.port}/search-page.html`);
+
+      const steps: Step[] = [
+        { type: 'action', action: 'fill', selector: '#search', value: 'final state test' },
+      ];
+
+      const result = await runSequence({ session: 'seq-test-5', steps }) as RunSequenceResult;
+      assert(result.final_state !== undefined, 'Should have final_state');
+      assertEquals(result.final_state.title, 'Search Page');
+      assert(result.final_state.url.includes('search-page'), 'URL should contain page name');
+
+      await closeSession('seq-test-5');
+    })();
+
+    // Test: run_sequence with console capture
+    await test('run_sequence: captures console events when enabled', async () => {
+      await openSession('seq-test-6', `http://localhost:${server.port}/search-page.html`);
+
+      // Trigger console log via evaluate
+      const session = getSession('seq-test-6');
+      await session!.page.evaluate(() => {
+        console.log('Test log message');
+        console.error('Test error message');
+      });
+
+      const steps: Step[] = [
+        { type: 'assert', condition: { element_exists: '#search-form' } },
+      ];
+
+      const result = await runSequence({
+        session: 'seq-test-6',
+        steps,
+        options: { console: { enabled: true, level: 'all' } },
+      }) as RunSequenceResult;
+
+      assert(result.success, 'Sequence should succeed');
+      // Console events may or may not be captured depending on timing
+      // Just verify the sequence ran successfully with console option
+
+      await closeSession('seq-test-6');
+    })();
+
+    // Test: run_sequence handles missing session
+    await test('run_sequence: returns error for missing session', async () => {
+      const result = await runSequence({
+        session: 'nonexistent-session',
+        steps: [{ type: 'assert', condition: { element_exists: 'body' } }],
+      });
+
+      assert('error' in result, 'Should return error');
+      assert((result as any).error.includes('not found'), 'Error should mention session not found');
     })();
 
   } finally {

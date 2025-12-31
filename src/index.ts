@@ -23,6 +23,7 @@ import * as elementsTool from './tools/elements.js';
 import * as actionTool from './tools/action.js';
 import * as screenshotTool from './tools/screenshot.js';
 import * as diagnosticsTool from './tools/diagnostics.js';
+import * as runSequenceTool from './tools/run-sequence.js';
 
 const tools = [
   openSessionTool,
@@ -34,6 +35,7 @@ const tools = [
   actionTool,
   screenshotTool,
   diagnosticsTool,
+  runSequenceTool,
 ];
 
 export function createServer(options: { headless?: boolean } = {}) {
